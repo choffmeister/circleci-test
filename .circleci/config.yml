@@ -1,0 +1,61 @@
+version: 2
+
+jobs:
+  test:
+    docker:
+      - image: node:10
+    working_directory: ~/test
+    steps:
+      - run: echo "Job test"
+
+  docker:
+    docker:
+      - image: node:10
+    working_directory: ~/test
+    steps:
+      - run: echo "Job docker"
+
+  deploy-production:
+    docker:
+      - image: node:10
+    working_directory: ~/test
+    steps:
+      - run: echo "Job production"
+
+  deploy-staging:
+    docker:
+      - image: node:10
+    working_directory: ~/test
+    steps:
+      - run: echo "Job staging"
+
+workflows:
+  version: 2
+  test-docker-deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - staging
+      - docker:
+          filters:
+            branches:
+              only: 
+                - master
+                - staging
+      - deploy-production:
+          requires:
+            - test
+            - docker
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-staging:
+          requires:
+            - docker
+          filters:
+            branches:
+              only:
+                - staging
