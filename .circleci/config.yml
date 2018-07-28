@@ -1,6 +1,16 @@
 version: 2
 
 jobs:
+  bench:
+    docker:
+      - image: dotnetdr/sysbench:0.5
+    working_directory: ~/test
+    steps:
+      - run: sysbench --test=cpu --num-threads=1 --cpu-max-prime=20000 run
+      - run: sysbench --test=cpu --num-threads=2 --cpu-max-prime=20000 run
+      - run: sysbench --test=cpu --num-threads=4 --cpu-max-prime=20000 run
+      - run: sysbench --test=cpu --num-threads=8 --cpu-max-prime=20000 run
+
   test:
     docker:
       - image: node:10
@@ -33,6 +43,7 @@ workflows:
   version: 2
   test-docker-deploy:
     jobs:
+      - bench
       - test:
           filters:
             branches:
